@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hidim-mcp"
-version = "0.1.1"
+version = "0.2.0"
 description = "MCP server that lets Claude analyse, project, tensorize, slice and plot high-dimensional data without pulling it into context"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -23,6 +23,7 @@ dependencies = [
 umap = ["umap-learn>=0.5"]
 io = ["pyarrow>=14", "openpyxl>=3.1", "h5py>=3.9", "xarray>=2023.1", "netCDF4>=1.6"]
 all = ["umap-learn>=0.5", "pyarrow>=14", "openpyxl>=3.1", "h5py>=3.9", "xarray>=2023.1", "netCDF4>=1.6"]
+dev = ["pytest>=7"]
 
 [project.scripts]
 hidim-mcp = "hidim_mcp.server:main"
