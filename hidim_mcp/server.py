@@ -152,7 +152,8 @@ def transform(name: str, op: str, columns: list[str] | str | None = None, new_na
 
     ops: log1p, log (params offset), sqrt, abs, clip (lo/hi or z), winsorize (q), rank, zscore (params clip), minmax, demean,
     detrend (params by), diff / pct_change / log_return / cumsum along rows (params periods, by=<time column>, group_by, dropna),
-    row_normalize (params target; library-size normalization for counts), deseasonalize (params by=<datetime column>,
+    row_normalize (params target; library-size normalization for counts), center_rows (subtract each row's mean: removes the
+    equal-weight market / common mode of a panel), deseasonalize (params by=<datetime column>,
     period=month|dayofweek|hour|dayofyear|quarter: subtracts per-period means -> anomalies), residualize (params on=[cols]:
     regress every feature on those columns and keep residuals, e.g. remove a market factor), dropna.
     Typical chains: counts -> row_normalize -> log1p -> project(clip_z=10); prices -> log_return -> describe; monthly

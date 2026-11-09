@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hidim-mcp"
-version = "0.2.0"
+version = "0.2.1"
 description = "MCP server that lets Claude analyse, project, tensorize, slice and plot high-dimensional data without pulling it into context"
 readme = "README.md"
 requires-python = ">=3.10"

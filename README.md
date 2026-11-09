@@ -116,7 +116,7 @@ hidim's own caps keep well under that.
 | `make_synthetic(kind, n, d, k, noise, seed)` | blobs, swiss_roll, s_curve, gaussian, lowrank, options_surface |
 | `describe(name, standardize="auto")` | the diagnostic profile described above (tables and tensors) |
 | `set_labels(name, columns)` | declare integer class codes / years / hours / lat-lon / ids as labels so they leave the feature matrix |
-| `transform(name, op, columns, params)` | log1p, log, sqrt, zscore (clip), minmax, clip, winsorize, rank, demean, detrend, diff, pct_change, log_return, cumsum, row_normalize, deseasonalize, residualize, dropna -> new table |
+| `transform(name, op, columns, params)` | log1p, log, sqrt, zscore (clip), minmax, clip, winsorize, rank, demean, detrend, diff, pct_change, log_return, cumsum, row_normalize, center_rows, deseasonalize, residualize, dropna -> new table |
 | `subset(name, where, columns, top_variance, sample, new_name)` | pandas-query filter, column selection, sampling; the only way to read raw rows |
 | `neighbors(name, index | point, k, metric)` | kNN in the original space with distance context |
 | `project(name, method, n_components, standardize, clip_z, ...)` | pca svd ica random kpca tsne umap isomap lle mds spectral -> stored embedding + metrics |

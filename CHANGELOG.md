@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1 (2026-11-09)
+
+Polish from running 0.2.0 live against the morning's datasets.
+- Measurement-channel families (px000.., b001.., g0042..: 20+ columns sharing a stem) and constant columns are no
+  longer flagged as "possible label" columns.
+- Long lists in notes are shortened (first 8 + count); `project` prints ranges for at most 10 components.
+- New `transform` op `center_rows`: subtract each row's cross-sectional mean (equal-weight market removal for panels).
+
 ## 0.2.0 (2026-11-09)
 
 Fixes for every defect found by the eleven-dataset test battery (see README, Provenance).
@@ -29,7 +37,7 @@ Fixes for every defect found by the eleven-dataset test battery (see README, Pro
 
 ### Preprocessing
 - New `transform` for tables: log1p, log, sqrt, abs, zscore (clip), minmax, clip, winsorize, rank, demean, detrend,
-  diff / pct_change / log_return / cumsum (by time, per group), row_normalize, deseasonalize, residualize, dropna.
+  diff / pct_change / log_return / cumsum (by time, per group), row_normalize, center_rows, deseasonalize, residualize, dropna.
 - New `tensor_transform` for tensors: log1p, log, sqrt, abs, fillna, demean, zscore, diff, pct_change, log_return,
   cumsum, normalize, anomaly (per-period climatology, optional baseline window), area_weight.
 - New `tensor_to_table(row_dim)`: flatten a tensor into rows x (other dims) for PCA / EOF analysis.

@@ -521,6 +521,14 @@ def identifier_columns(df: pd.DataFrame, exclude: Iterable[str] = ()) -> tuple[l
     ids: list[str] = []
     suspects: list[str] = []
     n = len(df)
+    # columns that belong to a large family with one alphabetic stem and a running number (px000.., b001.., g0042..)
+    # are measurement channels (pixels, bands, genes), never labels or coordinates
+    stems: dict[str, int] = {}
+    for c in df.columns:
+        m = re.fullmatch(r"([A-Za-z_]+?)\d+", str(c))
+        if m:
+            stems[m.group(1)] = stems.get(m.group(1), 0) + 1
+    family = {c for c in df.columns if (m := re.fullmatch(r"([A-Za-z_]+?)\d+", str(c))) and stems.get(m.group(1), 0) >= 20}
     for c in df.columns:
         if c in exclude or not pd.api.types.is_numeric_dtype(df[c]) or pd.api.types.is_bool_dtype(df[c]):
             continue
@@ -540,6 +548,8 @@ def identifier_columns(df: pd.DataFrame, exclude: Iterable[str] = ()) -> tuple[l
             ids.append(c)
         elif n >= 20 and nun == n and s.is_monotonic_increasing:
             ids.append(c)
+        elif c in family or nun < 2:
+            continue
         elif name in _COORD_NAMES or (n >= 50 and nun <= min(50, max(2, n // 20))):
             suspects.append(c)
     return ids, suspects
@@ -836,9 +846,15 @@ def spectrum_diagnostics(Xs: np.ndarray, standardized: bool = True) -> dict[str,
     return out
 
 
-def _fmt_notes(notes: dict[str, Any]) -> str:
-    """Render the notes dict from _matrix without the bookkeeping keys."""
-    shown = {k: v for k, v in notes.items() if k not in ("standardized",)}
+def _fmt_notes(notes: dict[str, Any], max_items: int = 8) -> str:
+    """Render the notes dict from _matrix without the bookkeeping keys; long lists are shortened."""
+    shown: dict[str, Any] = {}
+    for k, v in notes.items():
+        if k == "standardized":
+            continue
+        if isinstance(v, list) and len(v) > max_items:
+            v = v[:max_items] + [f"... (+{len(v) - max_items} more)"]
+        shown[k] = v
     return f"notes: {shown}" if shown else ""
 
 
@@ -1268,8 +1284,8 @@ def project(name: str, method: str = "pca", n_components: int = 2, features=None
         L.append(f"trustworthiness(k=10) = {tw:.3f}  (1.0 = neighbourhoods perfectly preserved; <0.85 means the 2-D picture misrepresents local structure)")
     if params:
         L.append(f"params: {params}")
-    rng_box = ", ".join(f"c{i + 1}:[{Y[:, i].min():.3g}, {Y[:, i].max():.3g}]" for i in range(k))
-    L.append(f"ranges: {rng_box}")
+    rng_box = ", ".join(f"c{i + 1}:[{Y[:, i].min():.3g}, {Y[:, i].max():.3g}]" for i in range(min(k, 10)))
+    L.append(f"ranges: {rng_box}" + (f" (c11..c{k} omitted)" if k > 10 else ""))
     if carried:
         L.append(f"carried label columns for colouring: {carried}")
     if ascii and k >= 2:
@@ -1550,7 +1566,7 @@ _PERIODS = {"month": lambda idx: idx.month, "dayofweek": lambda idx: idx.dayofwe
             "year": lambda idx: idx.year, "minute": lambda idx: idx.minute}
 
 TABLE_OPS = ("log1p", "log", "sqrt", "zscore", "minmax", "clip", "winsorize", "rank", "demean", "detrend", "diff",
-             "pct_change", "log_return", "row_normalize", "deseasonalize", "residualize", "dropna", "abs", "cumsum")
+             "pct_change", "log_return", "row_normalize", "center_rows", "deseasonalize", "residualize", "dropna", "abs", "cumsum")
 
 
 def transform(name: str, op: str, columns=None, new_name: str | None = None, params: dict[str, Any] | None = None) -> str:
@@ -1659,6 +1675,9 @@ def transform(name: str, op: str, columns=None, new_name: str | None = None, par
             s = np.nansum(X, axis=1, keepdims=True)
             Y = X / np.where(s > 0, s, np.nan) * target
             note = f"each row scaled to sum {target:g}"
+        elif op == "center_rows":
+            Y = X - np.nanmean(X, axis=1, keepdims=True)
+            note = "subtracted each row's cross-sectional mean (removes the common / equal-weight market component of a panel)"
         elif op == "deseasonalize":
             by = params.get("by")
             period = str(params.get("period", "month")).lower()

@@ -352,3 +352,21 @@ def test_embedding_carries_datetime_labels_and_describe_flags_duplicates():
     assert "carried label columns for colouring: ['date']" in out
     emb = E.REGISTRY.get("dup__pca2").obj
     assert "date" in emb.columns
+
+
+def test_feature_families_and_constants_are_not_flagged_as_labels(digits):
+    notes: dict = {}
+    E._numeric_frame(E.REGISTRY.get("digits"), None, notes)
+    assert "integer_cols_that_may_be_labels_or_coordinates" not in notes
+    txt = E._fmt_notes({"dropped_constant_cols": [f"p{i}" for i in range(30)], "standardized": True})
+    assert "(+22 more)" in txt and "standardized" not in txt
+
+
+def test_center_rows_removes_common_component():
+    rng = np.random.default_rng(0)
+    mkt = rng.normal(size=300)
+    df = pd.DataFrame({f"s{i}": mkt + 0.1 * rng.normal(size=300) for i in range(8)})
+    put("panel", df)
+    E.transform("panel", "center_rows", new_name="pc")
+    out = E.REGISTRY.get("pc").obj
+    assert np.allclose(out.mean(axis=1), 0) and out["s0"].std() < 0.2
