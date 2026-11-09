@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "hidim": {
+      "command": "/Users/you/hidim-mcp/.venv/bin/python",
+      "args": ["-m", "hidim_mcp.server"],
+      "env": {
+        "HIDIM_ROOTS": "/Users/you/data:/Users/you/research",
+        "HIDIM_OUT": "/Users/you/hidim_out"
+      }
+    }
+  }
+}

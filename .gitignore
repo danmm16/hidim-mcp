@@ -1,0 +1,19 @@
+# virtualenvs and build artefacts
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# test and run-time output
+tests/_tmp/
+hidim_out/
+*.png
+!docs/*.png
+
+# editors / OS
+.DS_Store
+.idea/
+.vscode/
